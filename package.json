@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "@babel/node": "^7.20.7",
-    "express": "^4.18.2"
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "tellojs": "^0.1.152"
   },
   "devDependencies": {
     "@babel/cli": "^7.21.0",
