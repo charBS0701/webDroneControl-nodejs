@@ -1,39 +1,70 @@
-const express = require('express'); // express 모듈 : 서버 여는 모듈
-const app = express();  // 서버 여는 부분
-const dgram = require('dgram'); // UDP 통신 모듈  -- 텔로랑 통신 시 wifi + udp 통신
-const client = dgram.createSocket('udp4');
-require('dotenv').config();
+const app = require("express")();
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
+const sdk = require("tellojs");
+const dgram = require("dgram");
+require("dotenv").config();
 
-client.bind(process.env.DRONE_HOST);
+const client = dgram.createSocket("udp4"); // UDP socket 생성
+client.bind(process.env.DRONE_PORT); // UDP 소켓에 드론 포트 바인딩
 
-client.on('message', (message) => {
-    console.log(`Message from drone: ${message}`);
+client.on("message", (message) => { // 드론으로부터 메시지 수신 시 콘솔에 출력
+  console.log(`Message from drone: ${message}`);
 });
 
-client.send(takeoffCommand, process.env.DRONE_PORT , process.env.DRONE_HOST, (err) => {
-    if (err) {
+app.post("/takeoff", (req, res) => {
+  sdk.control.connect();
+  client.send(
+    Buffer.from("takeoff"),
+    process.env.DRONE_PORT,
+    process.env.DRONE_HOST,
+    (err) => {
+      if (err) {
         console.log(`Error: ${err}`);
-    } else {
-        console.log('Command sent to drone: takeoff');
+      } else {
+        console.log("Command sent to drone: takeoff");
+        res.send("Command sent to drone: takeoff");
+      }
     }
+  );
 });
 
-app.listen(process.env.PORT, () => {
-    console.log(`Example app listening at http://localhost:${process.env.PORT}`);
+io.on("connection", (socket) => {
+  console.log("a user connected");
+  // 클라이언트로부터 이벤트를 받을 경우 실행되는 콜백 함수
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
 });
 
-const sdk = require('tellojs') // tello sdk 모듈
+http.listen(3001, () => {
+    console.log(`http listening on *: ${process.env.PORT}`);
+});
 
-const x = number,
-    y = number,
-    z = number,
-    speed = number,
-    yaw = number,
-    start = {x, y, z},
-    end = {x, y, z},
-    ssid = string,
-    password = string
+const takeoffCommand = Buffer.from("takeoff");
 
-await sdk.control.connect()                     // Enter SDK mode.
-console.log("연결 되었습니다.");
-// await sdk.control.takeOff()  
+async function connectToDrone() {
+    try {
+        await sdk.control.connect();
+        console.log("Connected to drone!");
+    } catch (err) {
+        console.log(`Connect Error: ${err}`);
+    }
+}
+
+connectToDrone();
+
+
+// client.send(
+//   takeoffCommand,
+//   process.env.DRONE_PORT,
+//   process.env.DRONE_HOST,
+//   (err) => {
+//     if (err) {
+//       console.log(`Error: ${err}`);
+//     } else {
+//       console.log("Command sent to drone: takeoff");
+//     }
+//   }
+// );

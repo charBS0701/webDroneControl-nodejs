@@ -14,6 +14,7 @@
     "@babel/node": "^7.20.7",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "socket.io": "^4.6.1",
     "tellojs": "^0.1.152"
   },
   "devDependencies": {
