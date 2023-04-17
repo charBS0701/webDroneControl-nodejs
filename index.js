@@ -31,7 +31,7 @@ wsServer.on("connection", (socket) => {
       }
     );
   });
-  socket.on("land", () => {
+  socket.on("landing", () => {
     console.log("land event received");
     client.send(
       landCommand,
@@ -71,7 +71,7 @@ async function connectToDrone() {
     await sdk.control.connect();
     console.log("Connected to drone!");
   } catch (err) {
-    console.log(`Connect Error: ${err}`);
+    console.log(`Drone Connect Error: ${err}`);
   }
 }
 
