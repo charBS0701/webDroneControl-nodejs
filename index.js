@@ -31,6 +31,21 @@ wsServer.on("connection", (socket) => {
       }
     );
   });
+  socket.on("land", () => {
+    console.log("land event received");
+    client.send(
+      landCommand,
+      process.env.DRONE_PORT,
+      process.env.DRONE_HOST,
+      (err) => {
+        if (err) {
+          console.log(`Error: ${err}`);
+        } else {
+          console.log("Command sent to drone: land");
+        }
+      }
+    );
+  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
@@ -40,8 +55,6 @@ wsServer.on("connection", (socket) => {
 const handleListen = () => console.log(`Listening on http://localhost:3001`);
 httpServer.listen(3001, handleListen);
 
-
-
 const client = dgram.createSocket("udp4"); // UDP socket 생성
 client.bind(process.env.DRONE_PORT); // UDP 소켓에 드론 포트 바인딩
 
@@ -50,8 +63,8 @@ client.on("message", (message) => {
   console.log(`Message from drone: ${message}`);
 });
 
-
 const takeoffCommand = Buffer.from("takeoff");
+const landCommand = Buffer.from("land");
 
 async function connectToDrone() {
   try {
