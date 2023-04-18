@@ -2,7 +2,15 @@ require("dotenv").config();
 
 const sdk = require("tellojs");
 import { wsServer, httpServer, client } from "./server.js";
-import { takeoffCommand, landCommand } from "./src/command.js";
+import {
+  takeoffCommand,
+  landCommand,
+  forwardCommand,
+  backCommand,
+  leftCommand,
+  rightCommand,
+  stopCommand,
+} from "./src/command.js";
 
 const connectToDrone = async () => {
   try {
@@ -46,6 +54,31 @@ wsServer.on("connection", (socket) => {
     console.log("-------------------------------------");
     console.log("land event received ✅");
     sendCommand(landCommand);
+  });
+  socket.on("forward", () => {
+    console.log("-------------------------------------");
+    console.log("forward event received ✅");
+    sendCommand("forward 20");
+  });
+  socket.on("back", () => {
+    console.log("-------------------------------------");
+    console.log("back event received ✅");
+    sendCommand("back 20");
+  });
+  socket.on("left", () => {
+    console.log("-------------------------------------");
+    console.log("left event received ✅");
+    sendCommand("left 20");
+  });
+  socket.on("right", () => {
+    console.log("-------------------------------------");
+    console.log("right event received ✅");
+    sendCommand("right 20");
+  });
+  socket.on("stop", () => {
+    console.log("-------------------------------------");
+    console.log("stop event received ✅");
+    sendCommand("stop");
   });
 
   socket.on("disconnect", () => {
