@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const sdk = require("tellojs");
-import { wsServer, httpServer, client } from "./server.js";
+import { wsServer, httpServer, client, receiveClient } from "./server.js";
 import {
   takeoffCommand,
   landCommand,
@@ -10,6 +10,7 @@ import {
   leftCommand,
   rightCommand,
   stopCommand,
+  batteryCommand,
 } from "./src/command.js";
 
 const connectToDrone = async () => {
@@ -22,71 +23,126 @@ const connectToDrone = async () => {
 };
 
 const sendCommand = (command) => {
-  // 드론에 명령 전송
-  client.send(
-    command,
-    process.env.DRONE_PORT,
-    process.env.DRONE_HOST,
-    (err) => {
-      if (err) {
-        console.log(`Error: ${err} ❌`);
-      } else {
-        console.log(`Command sent to drone: ${command}`);
-        console.log("-------------------------------------");
+  return new Promise((resolve, reject) => {
+    // 드론에 명령 전송
+    client.send(
+      command,
+      process.env.DRONE_PORT,
+      process.env.DRONE_HOST,
+      (err) => {
+        if (err) {
+          console.log(`Error: ${err} ❌`);
+          console.log("Command not sent to drone ❌");
+          console.log("-------------------------------------");
+          reject(err);
+        } else {
+          console.log(`Command sent to drone: ${command}`);
+          console.log("-------------------------------------");
+          resolve(command);
+        }
       }
+    );
+
+    // battery? 커맨드인 경우, 드론으로부터 응답을 받아서 콘솔에 출력합니다.
+    if (command === batteryCommand) {
+      receiveClient.once("message", handleBatteryResponse); // 첫번째 메시지만 받아들이고 핸들러 호출
     }
-  );
+  });
+};
+
+const handleBatteryResponse = (msg, rinfo) => {
+  console.log(`Battery: ${msg} ✅ from :${rinfo.address} : ${rinfo.port}`);
 };
 
 const handleListen = () => console.log(`Listening on http://localhost:3001 ✅`);
 httpServer.listen(3001, handleListen); // 웹서버 실행
 connectToDrone(); // 드론과 연결
-wsServer.on("connection", (socket) => {
+
+wsServer.on("connection", async (socket) => {
   // 프론트와 웹소켓 연결
   console.log("Socket Connected to Browser ✅");
 
-  socket.on("takeoff", () => {
+  socket.on("takeoff", async () => {
     console.log("-------------------------------------");
     console.log("takeoff event received ✅");
-    sendCommand(takeoffCommand);
+    try {
+      await sendCommand(takeoffCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
   });
-  socket.on("land", () => {
+
+  socket.on("land", async () => {
     console.log("-------------------------------------");
     console.log("land event received ✅");
-    sendCommand(landCommand);
+    try {
+      await sendCommand(landCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
   });
-  socket.on("forward", () => {
+
+  socket.on("forward", async () => {
     console.log("-------------------------------------");
     console.log("forward event received ✅");
-    sendCommand("forward 20");
+    try {
+      await sendCommand(forwardCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
   });
-  socket.on("back", () => {
+
+  socket.on("back", async () => {
     console.log("-------------------------------------");
     console.log("back event received ✅");
-    sendCommand("back 20");
+    try {
+      await sendCommand(backCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
   });
-  socket.on("left", () => {
+
+  socket.on("left", async () => {
     console.log("-------------------------------------");
     console.log("left event received ✅");
-    sendCommand("left 20");
+    try {
+      await sendCommand(leftCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
   });
-  socket.on("right", () => {
+
+  socket.on("right", async () => {
     console.log("-------------------------------------");
     console.log("right event received ✅");
-    sendCommand("right 20");
+    try {
+      await sendCommand(rightCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
   });
-  socket.on("stop", () => {
+
+  socket.on("stop", async () => {
     console.log("-------------------------------------");
     console.log("stop event received ✅");
-    sendCommand("stop");
+    try {
+      await sendCommand(stopCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
+  });
+
+  socket.on("battery?", async () => {
+    console.log("-------------------------------------");
+    console.log("battery event received ✅");
+    try {
+      console.log(await sendCommand(batteryCommand));
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
   });
 
   socket.on("disconnect", () => {
-    console.log("Browser disconnected ❌");
+    console.log("Socket Disconnected from Browser ❌");
   });
-});
-
-client.on("message", (message) => {
-  // 드론으로부터 메시지 수신 시 콘솔에 출력
-  console.log(`Message from drone: ${message}`);
 });
