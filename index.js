@@ -26,8 +26,19 @@ const connectToDrone = async () => {
 const getTof = async () => {
   while(1){
     try {
-      var a = await sdk.read.tof();
-      console.log(`${a}`); // Obtain distance value from TOF（cm)
+      //명령 보내기
+      var tof = await sdk.read.tof();
+      const splitTof = tof.substring(4, 10);
+      const numTof = Number(splitTof);
+      console.log(`Tof = ${numTof}`); 
+
+      if (numTof < 400){
+        console.log("잘 되네");
+
+        await sendCommand(backCommand);
+        continue;
+      }
+
     } catch (err) {
       console.log(`Drone tof Error: ${err} ❌`);
     }
