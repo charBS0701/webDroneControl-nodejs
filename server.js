@@ -3,8 +3,13 @@ const express = require("express");
 const http = require("http");
 const SocketIO = require("socket.io");
 const sdk = require("tellojs");
+const cors = require("cors");
 
-const app = express();
+export const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 export const httpServer = http.createServer(app);
 export const wsServer = SocketIO(httpServer, {
   cors: {
@@ -12,6 +17,8 @@ export const wsServer = SocketIO(httpServer, {
     methods: ["GET", "POST"],
   },
 });
+
+
 
 const dgram = require("dgram"); // 드론과의 UDP통신을 위함
 export const client = dgram.createSocket("udp4"); // 드론에게 명령을 보내는 소켓
@@ -31,7 +38,8 @@ const connectToDrone = async () => {
 const handleListen = () => console.log(`Listening on http://localhost:3001 ✅`);
 httpServer.listen(3001, handleListen); // 웹서버 실행
 connectToDrone(); // 드론과 연결
-// // 드론 연결이 끊기면
+
+//// 드론 연결이 끊기면
 // sdk.control.on("close", () => {
 //   console.log("Drone Disconnected ❌");
 //   console.log("Trying to reconnect to drone...");

@@ -16,6 +16,7 @@ import {
   clockwiseCommand,
   counterClockwiseCommand,
 } from "./src/command.js";
+import { destination } from "./src/api.js";
 
 const sendCommand = (command) => {
   return new Promise((resolve, reject) => {
