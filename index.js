@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const sdk = require("tellojs");
+
 import { wsServer, httpServer, client, receiveClient } from "./server.js";
 import {
   takeoffCommand,
@@ -20,6 +21,19 @@ const connectToDrone = async () => {
   } catch (err) {
     console.log(`Drone Connect Error: ${err} ❌`);
   }
+};
+
+const getTof = async () => {
+  while(1){
+    try {
+      let a = await sdk.read.tof();
+      //setTimeout(() => console.log(`${a}`), 100);
+      console.log(`${a}`); // Obtain distance value from TOF（cm)
+    } catch (err) {
+      console.log(`Drone tof Error: ${err} ❌`);
+    }
+  }
+  
 };
 
 const sendCommand = (command) => {
@@ -57,6 +71,7 @@ const handleBatteryResponse = (msg, rinfo) => {
 const handleListen = () => console.log(`Listening on http://localhost:3001 ✅`);
 httpServer.listen(3001, handleListen); // 웹서버 실행
 connectToDrone(); // 드론과 연결
+getTof();
 
 wsServer.on("connection", async (socket) => {
   // 프론트와 웹소켓 연결
@@ -85,7 +100,7 @@ wsServer.on("connection", async (socket) => {
   socket.on("forward", async () => {
     console.log("-------------------------------------");
     console.log("forward event received ✅");
-    try {
+    try {;
       await sendCommand(forwardCommand);
     } catch (err) {
       console.log(`Command Error: ${err} ❌`);
