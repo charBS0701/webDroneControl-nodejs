@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const sdk = require("tellojs");
+
 import { wsServer, httpServer, client, receiveClient } from "./server.js";
 import {
   takeoffCommand,
@@ -17,6 +18,27 @@ import {
   counterClockwiseCommand,
 } from "./src/command.js";
 import { destination } from "./src/api.js";
+
+const getTof = async () => {
+  while (1) {
+    try {
+      //명령 보내기
+      var tof = await sdk.read.tof();
+      const splitTof = tof.substring(4, 10);
+      const numTof = Number(splitTof);
+      console.log(`Tof = ${numTof}`);
+
+      if (numTof < 400) {
+        console.log("잘 되네");
+
+        await sendCommand(backCommand);
+        continue;
+      }
+    } catch (err) {
+      console.log(`Drone tof Error: ${err} ❌`);
+    }
+  }
+};
 
 const sendCommand = (command) => {
   return new Promise((resolve, reject) => {
@@ -49,6 +71,8 @@ const sendCommand = (command) => {
 const handleBatteryResponse = (msg, rinfo) => {
   console.log(`Battery: ${msg} ✅ from :${rinfo.address} : ${rinfo.port}`);
 };
+
+getTof();
 
 wsServer.on("connection", async (socket) => {
   // 프론트와 웹소켓 연결
