@@ -11,16 +11,11 @@ import {
   rightCommand,
   stopCommand,
   batteryCommand,
+  upCommand,
+  downCommand,
+  clockwiseCommand,
+  counterClockwiseCommand,
 } from "./src/command.js";
-
-const connectToDrone = async () => {
-  try {
-    await sdk.control.connect();
-    console.log("Connected to drone! ✅");
-  } catch (err) {
-    console.log(`Drone Connect Error: ${err} ❌`);
-  }
-};
 
 const sendCommand = (command) => {
   return new Promise((resolve, reject) => {
@@ -53,10 +48,6 @@ const sendCommand = (command) => {
 const handleBatteryResponse = (msg, rinfo) => {
   console.log(`Battery: ${msg} ✅ from :${rinfo.address} : ${rinfo.port}`);
 };
-
-const handleListen = () => console.log(`Listening on http://localhost:3001 ✅`);
-httpServer.listen(3001, handleListen); // 웹서버 실행
-connectToDrone(); // 드론과 연결
 
 wsServer.on("connection", async (socket) => {
   // 프론트와 웹소켓 연결
@@ -117,6 +108,47 @@ wsServer.on("connection", async (socket) => {
     console.log("right event received ✅");
     try {
       await sendCommand(rightCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
+  });
+
+  socket.on("up", async () => {
+    console.log("-------------------------------------");
+    console.log("up event received ✅");
+    try {
+      await sendCommand(upCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
+  });
+
+  socket.on("down", async () => {
+    console.log("-------------------------------------");
+    console.log("down event received ✅");
+    try {
+      await sendCommand(downCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
+  });
+
+  socket.on("cw", async () => {
+    console.log("-------------------------------------");
+    console.log("clockwise event received ✅");
+    try {
+      const result = await sendCommand(clockwiseCommand);
+      console.log(result);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
+  });
+
+  socket.on("ccw", async () => {
+    console.log("-------------------------------------");
+    console.log("counterClockwise event received ✅");
+    try {
+      await sendCommand(counterClockwiseCommand);
     } catch (err) {
       console.log(`Command Error: ${err} ❌`);
     }
