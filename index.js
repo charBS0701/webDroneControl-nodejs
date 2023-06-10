@@ -26,8 +26,7 @@ const connectToDrone = async () => {
 const getTof = async () => {
   while(1){
     try {
-      let a = await sdk.read.tof();
-      //setTimeout(() => console.log(`${a}`), 100);
+      var a = await sdk.read.tof();
       console.log(`${a}`); // Obtain distance value from TOF（cm)
     } catch (err) {
       console.log(`Drone tof Error: ${err} ❌`);
