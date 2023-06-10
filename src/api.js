@@ -1,4 +1,11 @@
 import { app } from "../server";
+const sdk = require("tellojs");
+import {
+  fwCommand,
+  cwCommand,
+  ccwCommand
+} from "./command.js";
+import { sendCommand } from "../index";
 
 // 목적지 받는 API
 let destination = "";
@@ -28,7 +35,7 @@ app.post("/api/destination", (req, res) => {
     }
 
     // 이동 방향 계산
-    let directionRow = goalRow - initRow;
+    let directionRow = initRow - goalRow ;
     let directionColumn = goalColumn - initColumn;
 
     return { directionRow, directionColumn };
@@ -47,15 +54,21 @@ app.post("/api/destination", (req, res) => {
   const initColumn = 1;
 
   const goal = dic[destination];  // 목표 지점 값
+
+  let directionRow = 0, directionColumn = 0;
+
   // directionRow: -값 = 앞으로, +값 = 뒤로
   // directionColumn: -값 = 왼쪽, +값 = 오른쪽
   if(goal == 3 || goal == 1 || goal == 4){
     let { directionRow, directionColumn } = calculateDirection(map, initRow, initColumn, goal);
     console.log("directionRow:", directionRow, "directionColumn:", directionColumn);
+    
+    sendCommand(fwCommand);
   }
   else{
-    console.log("directionRow:", 0, "directionColumn:", 0);
+    console.log("directionRow:", directionRow, "directionColumn:", directionColumn);
   }
+  
   
   //==========================================
   res.status(200).json({ message: "Destination received" });

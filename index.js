@@ -39,7 +39,7 @@ const getTof = async () => {
   }
 };
 
-const sendCommand = (command) => {
+export const sendCommand = (command) => {
   return new Promise((resolve, reject) => {
     // 드론에 명령 전송
     client.send(

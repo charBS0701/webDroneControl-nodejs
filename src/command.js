@@ -17,3 +17,8 @@ export const counterClockwiseCommand = Buffer.from("rc 0 0 0 -50");
 
 // ToF
 export const tofCammand = Buffer.from('tof?')
+
+// destination
+export const fwCommand = Buffer.from("forward 50");
+export const cwCommand = Buffer.from("cw 90");
+export const ccwCommand = Buffer.from("ccw 90");
