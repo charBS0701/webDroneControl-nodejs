@@ -18,7 +18,6 @@ import {
   counterClockwiseCommand,
 } from "./src/command.js";
 import { destination } from "./src/api.js";
-
 const getTof = async () => {
   while (1) {
     try {
@@ -71,8 +70,8 @@ const sendCommand = (command) => {
 const handleBatteryResponse = (msg, rinfo) => {
   console.log(`Battery: ${msg} ✅ from :${rinfo.address} : ${rinfo.port}`);
 };
-
-getTof();
+// console.log(`${directionRow, directionColumn}`)
+//getTof();
 
 wsServer.on("connection", async (socket) => {
   // 프론트와 웹소켓 연결
