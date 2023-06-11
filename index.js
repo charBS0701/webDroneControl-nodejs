@@ -18,32 +18,31 @@ import {
   counterClockwiseCommand,
   avoidCammand
 } from "./src/command.js";
-import { destination } from "./src/api.js";
-
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
-}
 
 const getTof = async () => {
-  let tof = await sdk.read.tof();
-  console.log(tof);
-  const splitTof = tof.substring(4, 10);
-  const numTof = Number(splitTof);
-  console.log(`Tof = ${numTof}`);
+  while(1){
+    try {
+      //명령 보내기
+      var tof = await sdk.read.tof();
+      const splitTof = tof.substring(4, 10);
+      const numTof = Number(splitTof);
+      console.log(`Tof = ${numTof}`); 
 
-  if (numTof < 300) {
-    console.log("잘 되네");
+      if (numTof < 400){
+        console.log("잘 되네");
+        setTimeout(getTof, 2000);
+        await sendCommand(backCommand);
+        break;
+      }
 
-    sendCommand(avoidCammand);
-    setTimeout(() => {
-      console.log(`Collision Avoidance!!`);
-    }, 1000);
-    sleep(2000).then(() => console.log(`2초 기다려`));
+    } catch (err) {
+      console.log(`Drone tof Error: ${err} ❌`);
+    }
   }
+  
 };
 
-// 1초에 한 번씩 실행
-setInterval(getTof, 500);
+getTof();
 
 export const sendCommand = (command) => {
   return new Promise((resolve, reject) => {
