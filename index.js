@@ -2,8 +2,15 @@ require("dotenv").config();
 
 const sdk = require("tellojs");
 
-import { wsServer, httpServer, commandSocket,   receiveSocket } from "./server.js";
 import {
+  wsServer,
+  httpServer,
+  commandSocket,
+  receiveSocket,
+} from "./server.js";
+import {
+  streamonCommand,
+  commandCommand,
   takeoffCommand,
   landCommand,
   forwardCommand,
@@ -40,7 +47,7 @@ const getTof = async () => {
   }
 };
 
-const sendCommand = (command) => {
+export const sendCommand = (command) => {
   return new Promise((resolve, reject) => {
     // 드론에 명령 전송
     commandSocket.send(
@@ -63,6 +70,8 @@ const sendCommand = (command) => {
   });
 };
 
+sendCommand(commandCommand); // 드론과 연결
+sendCommand(streamonCommand); // stream 시작
 
 // getTof();
 
@@ -70,7 +79,8 @@ wsServer.on("connection", async (socket) => {
   // 프론트와 웹소켓 연결
   console.log("Socket Connected to Browser ✅");
 
-  socket.on("takeoff", async () => {  // 이륙
+  socket.on("takeoff", async () => {
+    // 이륙
     console.log("-------------------------------------");
     console.log("takeoff event received ✅");
     try {
@@ -80,7 +90,8 @@ wsServer.on("connection", async (socket) => {
     }
   });
 
-  socket.on("land", async () => { // 착륙
+  socket.on("land", async () => {
+    // 착륙
     console.log("-------------------------------------");
     console.log("land event received ✅");
     try {
@@ -90,7 +101,8 @@ wsServer.on("connection", async (socket) => {
     }
   });
 
-  socket.on("forward", async () => {  // 전진
+  socket.on("forward", async () => {
+    // 전진
     console.log("-------------------------------------");
     console.log("forward event received ✅");
     try {
@@ -100,7 +112,8 @@ wsServer.on("connection", async (socket) => {
     }
   });
 
-  socket.on("back", async () => { // 후진
+  socket.on("back", async () => {
+    // 후진
     console.log("-------------------------------------");
     console.log("back event received ✅");
     try {
@@ -110,7 +123,8 @@ wsServer.on("connection", async (socket) => {
     }
   });
 
-  socket.on("left", async () => { // 좌로 이동
+  socket.on("left", async () => {
+    // 좌로 이동
     console.log("-------------------------------------");
     console.log("left event received ✅");
     try {
@@ -120,7 +134,8 @@ wsServer.on("connection", async (socket) => {
     }
   });
 
-  socket.on("right", async () => {  // 우로 이동
+  socket.on("right", async () => {
+    // 우로 이동
     console.log("-------------------------------------");
     console.log("right event received ✅");
     try {
@@ -130,7 +145,8 @@ wsServer.on("connection", async (socket) => {
     }
   });
 
-  socket.on("up", async () => { // 상승
+  socket.on("up", async () => {
+    // 상승
     console.log("-------------------------------------");
     console.log("up event received ✅");
     try {
@@ -140,7 +156,8 @@ wsServer.on("connection", async (socket) => {
     }
   });
 
-  socket.on("down", async () => { // 하강
+  socket.on("down", async () => {
+    // 하강
     console.log("-------------------------------------");
     console.log("down event received ✅");
     try {
@@ -150,7 +167,8 @@ wsServer.on("connection", async (socket) => {
     }
   });
 
-  socket.on("cw", async () => { // 시계방향 회전
+  socket.on("cw", async () => {
+    // 시계방향 회전
     console.log("-------------------------------------");
     console.log("clockwise event received ✅");
     try {
@@ -161,7 +179,8 @@ wsServer.on("connection", async (socket) => {
     }
   });
 
-  socket.on("ccw", async () => {  // 반시계방향 회전
+  socket.on("ccw", async () => {
+    // 반시계방향 회전
     console.log("-------------------------------------");
     console.log("counterClockwise event received ✅");
     try {
@@ -171,7 +190,8 @@ wsServer.on("connection", async (socket) => {
     }
   });
 
-  socket.on("stop", async () => { // 정지
+  socket.on("stop", async () => {
+    // 정지
     console.log("-------------------------------------");
     console.log("stop event received ✅");
     try {
@@ -181,7 +201,8 @@ wsServer.on("connection", async (socket) => {
     }
   });
 
-  socket.on("battery?", async () => { // 배터리 확인
+  socket.on("battery?", async () => {
+    // 배터리 확인
     console.log("-------------------------------------");
     console.log("battery event received ✅");
     try {

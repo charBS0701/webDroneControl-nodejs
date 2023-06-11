@@ -1,3 +1,4 @@
+export const commandCommand = Buffer.from("command");
 export const takeoffCommand = Buffer.from("takeoff");
 export const landCommand = Buffer.from("land");
 export const stopCommand = Buffer.from("stop");
@@ -16,4 +17,7 @@ export const clockwiseCommand = Buffer.from("rc 0 0 0 50");
 export const counterClockwiseCommand = Buffer.from("rc 0 0 0 -50");
 
 // ToF
-export const tofCammand = Buffer.from('tof?')
+export const tofCammand = Buffer.from("tof?");
+
+// video
+export const streamonCommand = Buffer.from("streamon");
