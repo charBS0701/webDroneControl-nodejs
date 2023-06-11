@@ -74,10 +74,39 @@ commandSocket.on("message", (msg, rinfo) => {
 // });
 
 // 0.0.0.0:11111 로 부터 오는 메시지 체크
+
+const spawn = require("child_process").spawn;
+// ffmpeg command
+const ffmpegCommand = spawn("ffmpeg", [
+  "-i",
+  "-", // STDIN
+  "-preset",
+  "ultrafast",
+  "-vcodec",
+  "copy", // Video codec
+  "-acodec",
+  "libmp3lame", // Audio codec
+  "-f",
+  "mpegts", // Format
+  "-", // STDOUT
+]);
+
 receiveSocket.on("message", (msg, rinfo) => {
-  console.log(
-    `Drone Stream Message : ${msg.toString()}, from :${rinfo.address}:${
-      rinfo.port
-    } receive`
-  );
+  ffmpegCommand.stdin.write(msg);
+});
+
+ffmpegCommand.stdout.on("data", (data) => {
+  // data is a Buffer, so convert it to a string
+  const videoData = {
+    type: "video",
+    data: {
+      videoBuffer: Buffer.from(data).toString("base64"), //data.toString("base64"),
+    },
+  };
+
+  wsServer.emit("drone_video", JSON.stringify(videoData));
+});
+
+ffmpegCommand.on("exit", (code, signal) => {
+  ffmpegCommand.stdin.end();
 });
