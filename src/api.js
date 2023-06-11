@@ -4,8 +4,6 @@ const sdk = require("tellojs");
 // 목적지 받는 API
 let destination = "";
 
-
-
 //=============== init부분 ===========
 let first_flag = true;
 let initRow = 3;
@@ -48,7 +46,7 @@ app.post("/api/destination", (req, res) => {
   let { directionRow, directionColumn }  = calculateDirection(initRow, initColumn, goalRow, goalColumn);
 
   console.log("directionRow:", directionRow, "directionColumn:", directionColumn);
-  
+
   initRow = directionRow;
   initColumn = directionColumn;
 

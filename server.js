@@ -67,9 +67,9 @@ let initColumn = 1;
 let nowRow, nowColumn;
 
 const dic = {
-  '집' : 4,
   '가좌동':1,
   '호탄동':3,
+  '집' : 4,
   '평거동':17
 }
 
@@ -109,7 +109,11 @@ app.post("/api/destination", (req, res) => {
 
     console.log("directionRow:", directionRow, "directionColumn:", directionColumn);
     console.log("================================");
-    
+
+    move(directionRow, directionColumn);
+
+    console.log("================================");
+
     nowRow = goalRow;
     nowColumn = goalColumn;
   }
@@ -140,4 +144,65 @@ const calculateDirection = (initRow, initColumn, goalRow, goalColumn) => {
   let directionColumn = goalColumn - initColumn;
 
   return { directionRow, directionColumn };
+}
+
+const move = (directionRow, directionColumn) => {
+  var angle = 0;
+  let backside = false;
+  if (directionRow > 0) {
+    console.log(`앞으로 ${directionRow}칸 이동`);
+    if (directionColumn > 0) {
+      console.log(`오른쪽으로 회전`);
+      angle += 90;
+      console.log(`앞으로 ${directionColumn}칸 이동`);
+    }
+    else if (directionColumn < 0) {
+      console.log(`왼쪽으로 회전`);
+      angle -= 90;
+      console.log(`앞으로 ${Math.abs(directionColumn)}칸 이동`);
+    }
+  }
+  else if (directionRow < 0) {
+    console.log(`뒤로 회전`);
+    backside = true;
+    console.log(`앞으로 ${Math.abs(directionRow)}칸 이동`);
+    if (directionColumn > 0) {
+      console.log(`왼쪽으로 회전`);
+      angle += 90;
+      backside = false;
+      console.log(`앞으로 ${directionColumn}칸 이동`);
+    }
+    else if (directionColumn < 0) {
+      console.log(`오른쪽으로 회전`);
+      angle -= 90;
+      backside = false;
+      console.log(`앞으로 ${Math.abs(directionColumn)}칸 이동`);
+    }
+  }
+  else {
+    if (directionColumn > 0) {
+      console.log(`오른쪽으로 회전`);
+      angle += 90;
+      console.log(`앞으로 ${directionColumn}칸 이동`);
+    }
+    else if (directionColumn < 0) {
+      console.log(`왼쪽으로 회전`);
+      angle -= 90;
+      console.log(`앞으로 ${Math.abs(directionColumn)}칸 이동`);
+    }
+  }
+
+  console.log("도착!!");
+  // 도착 후 회전 처리
+  if (angle > 0) {
+    angle -= 90;
+    console.log(`도착 후 왼쪽으로 회전 --- angle: ${angle}`);
+  } else if (angle < 0) {
+    angle += 90;
+    console.log(`도착 후 오른쪽으로 회전 --- angle: ${angle}`);
+  }
+  if (backside) {
+    console.log("도착 후 뒤로 회전")
+    backside = false;
+  }
 }
