@@ -15,7 +15,7 @@ export const downCommand = Buffer.from("rc 0 0 -50 0");
 export const clockwiseCommand = Buffer.from("rc 0 0 0 50");
 export const counterClockwiseCommand = Buffer.from("rc 0 0 0 -50");
 
-// ToF
+// Avoid
 export const avoidCammand = Buffer.from('back 50');
 
 // destination

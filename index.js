@@ -29,9 +29,8 @@ const getTof = async () => {
       console.log(`Tof = ${numTof}`); 
 
       if (numTof < 400){
-        console.log("잘 되네");
         setTimeout(getTof, 2000);
-        await sendCommand(backCommand);
+        await sendCommand(avoidCammand);
         break;
       }
 
@@ -75,7 +74,6 @@ export const sendCommand = (command) => {
 const handleBatteryResponse = (msg, rinfo) => {
   console.log(`Battery: ${msg} ✅ from :${rinfo.address} : ${rinfo.port}`);
 };
-// console.log(`${directionRow, directionColumn}`)
 getTof();
 
 wsServer.on("connection", async (socket) => {

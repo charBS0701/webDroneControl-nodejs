@@ -57,6 +57,16 @@ connectToDrone(); // 드론과 연결
 
 
 /////////////////////////////////////////////// 승진이의 노리ㅇ터 /////////////////////////////////////////////////
+import {
+  fwCommand,
+  cwCommand, 
+  ccwCommand,
+} from "./src/command.js";
+
+import {
+  sendCommand
+} from "./index.js";
+
 // 목적지 받는 API
 let destination = "";
 
@@ -146,37 +156,89 @@ const calculateDirection = (initRow, initColumn, goalRow, goalColumn) => {
   return { directionRow, directionColumn };
 }
 
-const move = (directionRow, directionColumn) => {
+const move = async (directionRow, directionColumn) => {
   var angle = 0;
   let backside = false;
   if (directionRow > 0) {
     console.log(`앞으로 ${directionRow}칸 이동`);
+    try {
+      for (let i = 0; i < directionRow; i++) {
+        await sendCommand(fwCommand);
+      }
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
+    
     if (directionColumn > 0) {
       console.log(`오른쪽으로 회전`);
       angle += 90;
       console.log(`앞으로 ${directionColumn}칸 이동`);
+      try {
+        await sendCommand(cwCommand);
+        for (let i = 0; i < directionRow; i++) {
+          await sendCommand(forwardCommand);
+        }
+      } catch (err) {
+        console.log(`Command Error: ${err} ❌`);
+      }
     }
+
     else if (directionColumn < 0) {
       console.log(`왼쪽으로 회전`);
       angle -= 90;
-      console.log(`앞으로 ${Math.abs(directionColumn)}칸 이동`);
+      console.log(`앞으로 ${-directionColumn}칸 이동`);
+      try {
+        await sendCommand(ccwCommand);
+        for (let i = 0; i < -directionColumn; i++) {
+          await sendCommand(fwCommand);
+        }
+      } catch (err) {
+        console.log(`Command Error: ${err} ❌`);
+      }
     }
   }
   else if (directionRow < 0) {
     console.log(`뒤로 회전`);
     backside = true;
-    console.log(`앞으로 ${Math.abs(directionRow)}칸 이동`);
+    console.log(`앞으로 ${-directionRow}칸 이동`);
+    try {
+      await sendCommand(cwCommand);
+      await sendCommand(cwCommand);
+      for (let i = 0; i < -directionRow; i++) {
+        await sendCommand(fwCommand);
+      }
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
+
     if (directionColumn > 0) {
       console.log(`왼쪽으로 회전`);
       angle += 90;
       backside = false;
       console.log(`앞으로 ${directionColumn}칸 이동`);
+
+      try {
+        await sendCommand(ccwCommand);
+        for (let i = 0; i < directionColumn; i++) {
+          await sendCommand(fwCommand);
+        }
+      } catch (err) {
+        console.log(`Command Error: ${err} ❌`);
+      }
     }
     else if (directionColumn < 0) {
       console.log(`오른쪽으로 회전`);
       angle -= 90;
       backside = false;
-      console.log(`앞으로 ${Math.abs(directionColumn)}칸 이동`);
+      console.log(`앞으로 ${-directionColumn}칸 이동`);
+      try {
+        await sendCommand(cwCommand);
+        for (let i = 0; i < -directionColumn; i++) {
+          await sendCommand(fwCommand);
+        }
+      } catch (err) {
+        console.log(`Command Error: ${err} ❌`);
+      }
     }
   }
   else {
@@ -184,11 +246,27 @@ const move = (directionRow, directionColumn) => {
       console.log(`오른쪽으로 회전`);
       angle += 90;
       console.log(`앞으로 ${directionColumn}칸 이동`);
+      try {
+        await sendCommand(cwCommand);
+        for (let i = 0; i < directionColumn; i++) {
+          await sendCommand(fwCommand);
+        }
+      } catch (err) {
+        console.log(`Command Error: ${err} ❌`);
+      }
     }
     else if (directionColumn < 0) {
       console.log(`왼쪽으로 회전`);
       angle -= 90;
-      console.log(`앞으로 ${Math.abs(directionColumn)}칸 이동`);
+      console.log(`앞으로 ${-directionColumn}칸 이동`);
+      try {
+        await sendCommand(ccwCommand);
+        for (let i = 0; i < -directionColumn; i++) {
+          await sendCommand(fwCommand);
+        }
+      } catch (err) {
+        console.log(`Command Error: ${err} ❌`);
+      }
     }
   }
 
@@ -197,12 +275,28 @@ const move = (directionRow, directionColumn) => {
   if (angle > 0) {
     angle -= 90;
     console.log(`도착 후 왼쪽으로 회전 --- angle: ${angle}`);
+    try {
+      await sendCommand(ccwCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
   } else if (angle < 0) {
     angle += 90;
     console.log(`도착 후 오른쪽으로 회전 --- angle: ${angle}`);
+    try {
+      await sendCommand(cwCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
   }
   if (backside) {
     console.log("도착 후 뒤로 회전")
     backside = false;
+    try {
+      await sendCommand(cwCommand);
+      await sendCommand(cwCommand);
+    } catch (err) {
+      console.log(`Command Error: ${err} ❌`);
+    }
   }
 }
