@@ -13,7 +13,11 @@
   downCommand,
   clockwiseCommand,
   counterClockwiseCommand,
+  stopCommand,
+  batteryCommand
 } from "./src/command.js";
+
+import sendCommand from "./src/sendCommand.js";
  
  
  const wsServer = SocketIO(httpServer, {

@@ -1,5 +1,3 @@
-import sendCommand from "./src/sendCommand.js";
-
 require("dotenv").config(); // .env 파일에서 환경변수 가져오기
 const express = require("express");
 const http = require("http");
@@ -17,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
-const destinationRouter = require("./routes/destination"); // 목적지 API와 관련된 라우터
+const destinationRouter = require("./src/destination"); // 목적지 API와 관련된 라우터
 app.use('/api/destination', destinationRouter); // 목적지 API와 관련된 라우터 설정
 
 export const httpServer = http.createServer(app);

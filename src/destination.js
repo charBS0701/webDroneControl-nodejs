@@ -1,5 +1,14 @@
 const express = require("express");
 const router = express.Router();
+import sendCommand from "./sendCommand.js";
+
+import {
+    fwCommand,
+    cwCommand,
+    ccwCommand,
+    backRotateCommand,
+    landCommand
+    } from "./command.js";
 
 // 목적지 받는 API
 let destination = "";

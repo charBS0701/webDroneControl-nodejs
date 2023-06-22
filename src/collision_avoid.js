@@ -1,11 +1,8 @@
 const sdk = require("tellojs");
 import {
 avoidCommand,
-fwCommand,
-cwCommand,
-ccwCommand,
-backRotateCommand
 } from "./src/command.js";
+import sendCommand from "./sendCommand.js";
 
 const getTof = async () => {
     while(1){
