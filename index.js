@@ -1,8 +1,4 @@
-require("dotenv").config();
 
-const sdk = require("tellojs");
-
-import { land } from "tellojs/src/commands/control.js";
 import {
   takeoffCommand,
   landCommand,
@@ -22,9 +18,9 @@ import {
   ccwCommand,
   backRotateCommand
 } from "./src/command.js";
+const sdk = require("tellojs");
 
 // ===================여기서 부터 수정================== //
-
 require("dotenv").config(); // .env 파일에서 환경변수 가져오기
 const express = require("express");
 const http = require("http");
@@ -37,12 +33,15 @@ const WebSocket = require("ws");
 const TELLO_IP = "192.168.10.1";
 const TELLO_PORT = 8889;
 const SERVER_PORT = 3001;
+
 //----- 하드코딩 -----// 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+const destinationRouter = require("./routes/destination"); // 목적지 API와 관련된 라우터
+app.use('/api/destination', destinationRouter); // 목적지 API와 관련된 라우터 설정
 
 export const httpServer = http.createServer(app);
 const handleListen = () =>
@@ -332,223 +331,224 @@ wsServer.on("connection", async (socket) => {
 });
 
 
+// 아래 코드 모두 destination.js로 옮김
 //---------------------------------여기서부터 목적지---------------------------//
 
-// 목적지 받는 API
-let destination = "";
+// // 목적지 받는 API
+// let destination = "";
 
-//=============== init부분 ===========
-let first_flag = true;
-let initRow = 3;
-let initColumn = 1;
-let nowRow, nowColumn;
+// //=============== init부분 ===========
+// let first_flag = true;
+// let initRow = 3;
+// let initColumn = 1;
+// let nowRow, nowColumn;
 
-const dic = {
-  '가좌동':1,
-  '호탄동':3,
-  '집' : 4,
-  '평거동':17
-}
+// const dic = {
+//   '가좌동':1,
+//   '호탄동':3,
+//   '집' : 4,
+//   '평거동':17
+// }
 
-const map = [
-  [1, 2, 3],
-  [4, 5, 6],
-  [7, 8, 9],
-  [10, 11, 12],
-  [13, 14, 15],
-  [16, 17, 18]
-];
+// const map = [
+//   [1, 2, 3],
+//   [4, 5, 6],
+//   [7, 8, 9],
+//   [10, 11, 12],
+//   [13, 14, 15],
+//   [16, 17, 18]
+// ];
 //====================================
 
-app.post("/api/destination", (req, res) => {
-  destination = req.body.destination;
-  console.log("================================");
-  console.log("API received destination:", destination);
+// app.post("/api/destination", (req, res) => {
+//   destination = req.body.destination;
+//   console.log("================================");
+//   console.log("API received destination:", destination);
 
-  if(first_flag){
-    nowRow = initRow;
-    nowColumn = initColumn;
-    first_flag = false;
-  } 
+//   if(first_flag){
+//     nowRow = initRow;
+//     nowColumn = initColumn;
+//     first_flag = false;
+//   } 
 
-  const goal = dic[destination];  // 목표 지점 값
+//   const goal = dic[destination];  // 목표 지점 값
 
-  if(goal != null){
-    console.log("goal: ", goal, `(${destination})`);
+//   if(goal != null){
+//     console.log("goal: ", goal, `(${destination})`);
 
-    let { goalRow, goalColumn } = findGoal(map, goal);
+//     let { goalRow, goalColumn } = findGoal(map, goal);
   
-    console.log("nowRow: ", nowRow, "nowColumn: ", nowColumn);
+//     console.log("nowRow: ", nowRow, "nowColumn: ", nowColumn);
 
-    // directionRow: +값 = 앞으로, -값 = 뒤로
-    // directionColumn: -값 = 왼쪽, +값 = 오른쪽
-    let { directionRow, directionColumn }  = calculateDirection(nowRow, nowColumn, goalRow, goalColumn);
+//     // directionRow: +값 = 앞으로, -값 = 뒤로
+//     // directionColumn: -값 = 왼쪽, +값 = 오른쪽
+//     let { directionRow, directionColumn }  = calculateDirection(nowRow, nowColumn, goalRow, goalColumn);
 
-    console.log("directionRow:", directionRow, "directionColumn:", directionColumn);
-    console.log("================================");
+//     console.log("directionRow:", directionRow, "directionColumn:", directionColumn);
+//     console.log("================================");
 
-    move(directionRow, directionColumn);
+//     move(directionRow, directionColumn);
 
-    nowRow = goalRow;
-    nowColumn = goalColumn;
-  }
+//     nowRow = goalRow;
+//     nowColumn = goalColumn;
+//   }
 
-  //==========================================
-  res.status(200).json({ message: "Destination received" });
-});
+//   //==========================================
+//   res.status(200).json({ message: "Destination received" });
+// });
 
-const findGoal = (matrix, goal) => {
-  // 목표 지점의 행, 열 인덱스 계산
-  let goalRow = null;
-  let goalColumn = null;
-  for (let rowIdx = 0; rowIdx < matrix.length; rowIdx++) {
-    const row = matrix[rowIdx];
-    if (row.includes(goal)) {
-      goalRow = rowIdx;
-      goalColumn = row.indexOf(goal);
-      break;
-    }
-  }
+// const findGoal = (matrix, goal) => {
+//   // 목표 지점의 행, 열 인덱스 계산
+//   let goalRow = null;
+//   let goalColumn = null;
+//   for (let rowIdx = 0; rowIdx < matrix.length; rowIdx++) {
+//     const row = matrix[rowIdx];
+//     if (row.includes(goal)) {
+//       goalRow = rowIdx;
+//       goalColumn = row.indexOf(goal);
+//       break;
+//     }
+//   }
 
-  return { goalRow, goalColumn };
-}
+//   return { goalRow, goalColumn };
+// }
 
-const calculateDirection = (initRow, initColumn, goalRow, goalColumn) => {
-  // 이동 방향 계산
-  let directionRow = initRow - goalRow ;
-  let directionColumn = goalColumn - initColumn;
+// const calculateDirection = (initRow, initColumn, goalRow, goalColumn) => {
+//   // 이동 방향 계산
+//   let directionRow = initRow - goalRow ;
+//   let directionColumn = goalColumn - initColumn;
 
-  return { directionRow, directionColumn };
-}
+//   return { directionRow, directionColumn };
+// }
 
-const forward = async () => {
-  console.log(`앞으로 1칸 이동`);
-  await sendCommand(fwCommand);
-}
+// const forward = async () => {
+//   console.log(`앞으로 1칸 이동`);
+//   await sendCommand(fwCommand);
+// }
 
-const cwRotate = async () => {
-  console.log(`오른쪽으로 회전`);
-  await sendCommand(cwCommand);
-}
+// const cwRotate = async () => {
+//   console.log(`오른쪽으로 회전`);
+//   await sendCommand(cwCommand);
+// }
 
-const ccwRotate = async () => {
-  console.log(`왼쪽으로 회전`);
-  await sendCommand(ccwCommand);
-}
+// const ccwRotate = async () => {
+//   console.log(`왼쪽으로 회전`);
+//   await sendCommand(ccwCommand);
+// }
 
-const backRotate = async () => {
-  console.log(`뒤로 회전`);
-  await sendCommand(backRotateCommand);
-}
+// const backRotate = async () => {
+//   console.log(`뒤로 회전`);
+//   await sendCommand(backRotateCommand);
+// }
 
-// 종원_착륙기능------//
-const Landend = async () => {
-  console.log(`랜딩`);
-  await sendCommand(landCommand);
-}
+// // 종원_착륙기능------//
+// const Landend = async () => {
+//   console.log(`랜딩`);
+//   await sendCommand(landCommand);
+// }
 
 
-const move = async (directionRow, directionColumn) => {
-  var angle = 0;
-  let backside = false;
-  let index = 0;
-  const timeInterval = 3500;
-  if (directionRow > 0) {
-    for (let i = 0; i < directionRow; i++){
-      setTimeout(forward, timeInterval * (index + 1));
-      index += 1;
-    }
+// const move = async (directionRow, directionColumn) => {
+//   var angle = 0;
+//   let backside = false;
+//   let index = 0;
+//   const timeInterval = 3500;
+//   if (directionRow > 0) {
+//     for (let i = 0; i < directionRow; i++){
+//       setTimeout(forward, timeInterval * (index + 1));
+//       index += 1;
+//     }
     
-    if (directionColumn > 0) {
-      angle += 90;
-      setTimeout(cwRotate, timeInterval * (index + 1));
-      index += 1;
+//     if (directionColumn > 0) {
+//       angle += 90;
+//       setTimeout(cwRotate, timeInterval * (index + 1));
+//       index += 1;
 
-      for (let i = 0; i < directionColumn; i++){
-        setTimeout(forward, timeInterval * (index + 1));
-        index += 1;
-      }
-    }
+//       for (let i = 0; i < directionColumn; i++){
+//         setTimeout(forward, timeInterval * (index + 1));
+//         index += 1;
+//       }
+//     }
 
-    else if (directionColumn < 0) {
-      angle -= 90;
-      setTimeout(ccwRotate, timeInterval * (index + 1));
-      index += 1;
+//     else if (directionColumn < 0) {
+//       angle -= 90;
+//       setTimeout(ccwRotate, timeInterval * (index + 1));
+//       index += 1;
 
-      for (let i = 0; i < -directionColumn; i++){
-        setTimeout(forward, timeInterval * (index + 1));
-        index += 1;
-      }
-    }
-  }
-  else if (directionRow < 0) {
-    setTimeout(backRotate, timeInterval * (index + 1));
-    index += 1;
-    backside = true;
-    for (let i = 0; i < -directionRow; i++){
-      setTimeout(forward, timeInterval * (index + 1));
-      index += 1;
-    }
+//       for (let i = 0; i < -directionColumn; i++){
+//         setTimeout(forward, timeInterval * (index + 1));
+//         index += 1;
+//       }
+//     }
+//   }
+//   else if (directionRow < 0) {
+//     setTimeout(backRotate, timeInterval * (index + 1));
+//     index += 1;
+//     backside = true;
+//     for (let i = 0; i < -directionRow; i++){
+//       setTimeout(forward, timeInterval * (index + 1));
+//       index += 1;
+//     }
 
-    if (directionColumn > 0) {
-      angle += 90;
-      setTimeout(ccwRotate, timeInterval * (index + 1));
-      index += 1;
-      backside = false;
-      for (let i = 0; i < directionColumn; i++){
-        setTimeout(forward, timeInterval * (index + 1));
-        index += 1;
-      }
-    }
-    else if (directionColumn < 0) {
-      angle -= 90;
-      setTimeout(cwRotate, timeInterval * (index + 1));
-      index += 1;
-      backside = false;
-      for (let i = 0; i < -directionColumn; i++){
-        setTimeout(forward, timeInterval * (index + 1));
-        index += 1;
-      }
-    }
-  }
-  else {
-    if (directionColumn > 0) {
-      setTimeout(cwRotate, timeInterval * (index + 1));
-      index += 1;
-      angle += 90;
-      for (let i = 0; i < directionColumn; i++){
-        setTimeout(forward, timeInterval * (index + 1));
-        index += 1;
-      }
-    }
-    else if (directionColumn < 0) {
-      setTimeout(ccwRotate, timeInterval * (index + 1));
-      index += 1;
-      angle -= 90;
-      for (let i = 0; i < -directionColumn; i++){
-        setTimeout(forward, timeInterval * (index + 1));
-        index += 1;
-      }
-    }
-  }
+//     if (directionColumn > 0) {
+//       angle += 90;
+//       setTimeout(ccwRotate, timeInterval * (index + 1));
+//       index += 1;
+//       backside = false;
+//       for (let i = 0; i < directionColumn; i++){
+//         setTimeout(forward, timeInterval * (index + 1));
+//         index += 1;
+//       }
+//     }
+//     else if (directionColumn < 0) {
+//       angle -= 90;
+//       setTimeout(cwRotate, timeInterval * (index + 1));
+//       index += 1;
+//       backside = false;
+//       for (let i = 0; i < -directionColumn; i++){
+//         setTimeout(forward, timeInterval * (index + 1));
+//         index += 1;
+//       }
+//     }
+//   }
+//   else {
+//     if (directionColumn > 0) {
+//       setTimeout(cwRotate, timeInterval * (index + 1));
+//       index += 1;
+//       angle += 90;
+//       for (let i = 0; i < directionColumn; i++){
+//         setTimeout(forward, timeInterval * (index + 1));
+//         index += 1;
+//       }
+//     }
+//     else if (directionColumn < 0) {
+//       setTimeout(ccwRotate, timeInterval * (index + 1));
+//       index += 1;
+//       angle -= 90;
+//       for (let i = 0; i < -directionColumn; i++){
+//         setTimeout(forward, timeInterval * (index + 1));
+//         index += 1;
+//       }
+//     }
+//   }
 
-  // 도착 후 회전 처리
-  if (angle > 0) {
-    angle -= 90;
-    setTimeout(ccwRotate, timeInterval * (index + 1));
-    setTimeout(Landend, timeInterval * (index + 2));
-  } else if (angle < 0) {
-    angle += 90;
-    setTimeout(cwRotate, timeInterval * (index + 1));
-    setTimeout(Landend, timeInterval * (index + 2));
-  }
+//   // 도착 후 회전 처리
+//   if (angle > 0) {
+//     angle -= 90;
+//     setTimeout(ccwRotate, timeInterval * (index + 1));
+//     setTimeout(Landend, timeInterval * (index + 2));
+//   } else if (angle < 0) {
+//     angle += 90;
+//     setTimeout(cwRotate, timeInterval * (index + 1));
+//     setTimeout(Landend, timeInterval * (index + 2));
+//   }
   
-  if (backside) {
-    backside = false;
-    setTimeout(backRotate, timeInterval * (index + 1));
-    setTimeout(Landend, timeInterval * (index + 2));
-  }
-}
+//   if (backside) {
+//     backside = false;
+//     setTimeout(backRotate, timeInterval * (index + 1));
+//     setTimeout(Landend, timeInterval * (index + 2));
+//   }
+// }
 
 
 
