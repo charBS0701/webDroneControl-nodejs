@@ -1,24 +1,4 @@
-
-import {
-  takeoffCommand,
-  landCommand,
-  forwardCommand,
-  backCommand,
-  leftCommand,
-  rightCommand,
-  stopCommand,
-  batteryCommand,
-  upCommand,
-  downCommand,
-  clockwiseCommand,
-  counterClockwiseCommand,
-  avoidCommand,
-  fwCommand,
-  cwCommand,
-  ccwCommand,
-  backRotateCommand
-} from "./src/command.js";
-const sdk = require("tellojs");
+import sendCommand from "./src/sendCommand.js";
 
 require("dotenv").config(); // .env 파일에서 환경변수 가져오기
 const express = require("express");
@@ -141,53 +121,6 @@ setTimeout(function () {
 
 
 
-
-
-// 여기서 결판 //
-
-
-const getTof = async () => {
-  while(1){
-    try {
-      //명령 보내기
-      var tof = await sdk.read.tof();
-      const splitTof = tof.substring(4, 10);
-      const numTof = Number(splitTof);
-      console.log(`Tof = ${numTof}`); 
-
-      if (numTof < 400){
-        setTimeout(getTof, 1000);
-        await sendCommand(avoidCommand);
-        break;
-      }
-
-    } catch (err) {
-      console.log(`Drone tof Error: ${err} ❌`);
-    }
-  }
-  
-};
-
-getTof();
-
-
-export const sendCommand = (command) => {
-  return new Promise((resolve, reject) => {
-    // 드론에 명령 전송
-    commandSocket.send(command, TELLO_PORT, TELLO_IP, (err) => {
-      if (err) {
-        console.log(`Error: ${err} ❌`);
-        console.log("Command not sent to drone ❌");
-        console.log("-------------------------------------");
-        reject(err);
-      } else {
-        console.log(`Command sent to drone: ${command}`);
-        console.log("-------------------------------------");
-        resolve(command);
-      }
-    });
-  });
-};
 
 
 

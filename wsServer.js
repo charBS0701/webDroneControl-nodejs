@@ -1,5 +1,20 @@
  // 클라이언트와의 소켓 연결에 관한 파일
  const SocketIO = require("socket.io");
+ import {
+  takeoffCommand,
+  landCommand,
+  forwardCommand,
+  backCommand,
+  leftCommand,
+  rightCommand,
+  stopCommand,
+  batteryCommand,
+  upCommand,
+  downCommand,
+  clockwiseCommand,
+  counterClockwiseCommand,
+} from "./src/command.js";
+ 
  
  const wsServer = SocketIO(httpServer, {
     // 리액트와 소켓 연결
