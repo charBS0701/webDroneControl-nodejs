@@ -1,6 +1,5 @@
- // 클라이언트와의 소켓 연결에 관한 파일
- const SocketIO = require("socket.io");
- import {
+// 클라이언트와의 소켓 연결에 관한 파일
+import {
   takeoffCommand,
   landCommand,
   forwardCommand,
@@ -13,25 +12,18 @@
   downCommand,
   clockwiseCommand,
   counterClockwiseCommand,
-  stopCommand,
-  batteryCommand
 } from "./src/command.js";
 
 import sendCommand from "./src/sendCommand.js";
- 
- 
- const wsServer = SocketIO(httpServer, {
-    // 리액트와 소켓 연결
-    cors: {
-      origin: `*`,
-      methods: ["GET", "POST"],
-    },
-  });
 
-  wsServer.on("connection", async (socket) => {
+const wsServer = (httpServer) => {
+  const io = require("socket.io")(httpServer, {
+    cors: { origin: "*" },
+  });
+  io.on("connection", async (socket) => {
     // 프론트와 웹소켓 연결
     console.log("Socket Connected to Browser ✅");
-  
+
     socket.on("takeoff", async () => {
       //console.log("-------------------------------------");
       //console.log("takeoff event received ✅");
@@ -41,7 +33,7 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("land", async () => {
       //console.log("-------------------------------------");
       //console.log("land event received ✅");
@@ -51,7 +43,7 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("forward", async () => {
       //console.log("-------------------------------------");
       //console.log("forward event received ✅");
@@ -61,7 +53,7 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("back", async () => {
       //console.log("-------------------------------------");
       //console.log("back event received ✅");
@@ -71,9 +63,9 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("left", async () => {
-     //console.log("-------------------------------------");
+      //console.log("-------------------------------------");
       //console.log("left event received ✅");
       try {
         await sendCommand(leftCommand);
@@ -81,7 +73,7 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("right", async () => {
       //console.log("-------------------------------------");
       //console.log("right event received ✅");
@@ -91,7 +83,7 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("up", async () => {
       //console.log("-------------------------------------");
       //console.log("up event received ✅");
@@ -101,7 +93,7 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("down", async () => {
       //console.log("-------------------------------------");
       //console.log("down event received ✅");
@@ -111,7 +103,7 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("cw", async () => {
       //console.log("-------------------------------------");
       //console.log("clockwise event received ✅");
@@ -122,7 +114,7 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("ccw", async () => {
       //console.log("-------------------------------------");
       //console.log("counterClockwise event received ✅");
@@ -132,7 +124,7 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("stop", async () => {
       //console.log("-------------------------------------");
       //console.log("stop event received ✅");
@@ -142,7 +134,7 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("battery?", async () => {
       //console.log("-------------------------------------");
       //console.log("battery event received ✅");
@@ -152,10 +144,11 @@ import sendCommand from "./src/sendCommand.js";
         console.log(`Command Error: ${err} ❌`);
       }
     });
-  
+
     socket.on("disconnect", () => {
       console.log("Socket Disconnected from Browser ❌");
     });
   });
+};
 
-  export default wsServer;
+export default wsServer;
